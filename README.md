@@ -1,5 +1,10 @@
 # gpt-publisher
 
+## Pre-requisites
+- git
+- docker
+- docker-compose v2.21.0+
+
 ## Installation
 
 ```bash
@@ -16,4 +21,16 @@ $ airflow webserver --port 9000
 ### Airflow scheduler
 ```bash
 $ airflow scheduler
+```
+
+## Docker setup
+
+```bash
+$ cp .env.example .env
+$ echo -e "AIRFLOW_UID=$(id -u)" > .env
+```
+
+```bash
+$ docker-compose build
+$ docker-compose up
 ```
