@@ -69,6 +69,10 @@ x-airflow-common:
     # See https://airflow.apache.org/docs/apache-airflow/stable/administration-and-deployment/logging-monitoring/check-health.html#scheduler-health-check-server
     # yamllint enable rule:line-length
     AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: 'true'
+    AIRFLOW_VAR_GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+    AIRFLOW_VAR_GITHUB_USER: ${GITHUB_USER:-}
+    AIRFLOW_VAR_GITHUB_REPOSITORY: ${GITHUB_REPOSITORY:-}
+    AIRFLOW__CORE__HIDE_SENSITIVE_VAR_CONN_FIELDS: ${AIRFLOW__CORE__HIDE_SENSITIVE_VAR_CONN_FIELDS:-'true'}
     # WARNING: Use _PIP_ADDITIONAL_REQUIREMENTS option ONLY for a quick checks
     # for other purpose (development, test and especially production usage) build/extend Airflow image.
     _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
