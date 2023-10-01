@@ -72,6 +72,7 @@ x-airflow-common:
     AIRFLOW_VAR_GITHUB_TOKEN: ${GITHUB_TOKEN:-}
     AIRFLOW_VAR_GITHUB_USER: ${GITHUB_USER:-}
     AIRFLOW_VAR_GITHUB_REPOSITORY: ${GITHUB_REPOSITORY:-}
+    AIRFLOW_VAR_OPENAI_API_KEY: ${OPENAI_API_KEY:-}
     AIRFLOW__CORE__HIDE_SENSITIVE_VAR_CONN_FIELDS: ${AIRFLOW__CORE__HIDE_SENSITIVE_VAR_CONN_FIELDS:-'true'}
     # WARNING: Use _PIP_ADDITIONAL_REQUIREMENTS option ONLY for a quick checks
     # for other purpose (development, test and especially production usage) build/extend Airflow image.
