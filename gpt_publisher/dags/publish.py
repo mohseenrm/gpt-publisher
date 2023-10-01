@@ -64,6 +64,7 @@ with DAG(
         """
         post = ti.xcom_pull(task_ids="call_gpt")
         assert post is not None or post is not ""
+        
         date = datetime.datetime.now().isoformat().split("T")[0]
         post = re.sub(DATE_TIME_REGEX, f"date: {date}", post)
 
