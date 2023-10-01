@@ -75,7 +75,12 @@ with DAG(
         return {
             "post": post,
             "tags": tags,
+            "date": date,
         }
+
+    @task(task_id="fetch_images")
+    def fetch_images(ti=None):
+        pass
 
     def mock_blog_post():
         date = datetime.datetime.now().isoformat().split("T")[0]
