@@ -161,5 +161,5 @@ cython_debug/
 
 *.egg-info/
 .idea/
-gpt-publisher/airflow-webserver.pid
-gpt-publisher/logs/
+gpt_publisher/airflow-webserver.pid
+gpt_publisher/logs/
