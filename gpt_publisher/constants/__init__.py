@@ -53,3 +53,7 @@ authors:
 
 DATE_TIME_REGEX = r"date:(.*)"
 TAGS_REGEX = r"(?<=tags:)(.*)"
+TITLE_REGEX = r"(?<=title:)(.*)"
+WORD_REGEX = r"[\w]+"
+
+UNSPLASH_BASE_URL = "https://api.unsplash.com"

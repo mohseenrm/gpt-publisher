@@ -2,6 +2,7 @@ import pendulum
 import datetime
 import random
 import re
+import requests
 
 from airflow import DAG
 from airflow.decorators import task
@@ -10,7 +11,15 @@ from airflow.operators.bash import BashOperator
 
 import openai
 
-from gpt_publisher.constants import GPT_TOPICS, DATE_TIME_REGEX, TAGS_REGEX, gpt_prompt
+from gpt_publisher.constants import (
+    GPT_TOPICS,
+    DATE_TIME_REGEX,
+    TAGS_REGEX,
+    TITLE_REGEX,
+    WORD_REGEX,
+    UNSPLASH_BASE_URL,
+    gpt_prompt,
+)
 
 
 with DAG(
@@ -74,15 +83,29 @@ with DAG(
         tags = [tag.strip() for tag in tags]
         tags = [tag.replace("_", " ").replace("-", " ") for tag in tags]
 
+        raw_title = re.findall(TITLE_REGEX, post)
+        assert raw_title and len(raw_title) > 0
+
+        raw_title = raw_title[0].strip()
+        title_words = re.findall(WORD_REGEX, raw_title)
+
+        assert title_words and len(title_words) > 0
+        title_words = [word.lower() for word in title_words]
+        title_words = "-".join(title_words)
+        file_name = f"{date}-{title_words}.md"
+
         return {
             "post": post,
             "tags": tags,
             "date": date,
+            "file_name": file_name,
         }
 
     @task(task_id="fetch_images")
     def fetch_images(ti=None):
-        pass
+        context = ti.xcom_pull(task_ids="process_blog_post")
+        tags = context["tags"][:2]
+        query = ", ".join(tags)
 
     def mock_blog_post():
         date = datetime.datetime.now().isoformat().split("T")[0]
@@ -114,6 +137,7 @@ Hello!
     pick_topic = pick_topic()
     call_gpt = call_gpt()
     process_blog_post = process_blog_post()
+    fetch_images = fetch_images()
 
     # run = BashOperator(
     #     task_id="publish_blog_post",
@@ -130,7 +154,7 @@ Hello!
         bash_command='echo "Shutting down!"',
     )
 
-    pick_topic >> call_gpt >> process_blog_post >> end
+    pick_topic >> call_gpt >> process_blog_post >> fetch_images >> end
 
 if __name__ == "__main__":
     dag.test()
