@@ -46,6 +46,7 @@ with DAG(
         print(f"Theme: {theme}")
         prompt = gpt_prompt(theme)
         openai_api_key = Variable.get("OPENAI_API_KEY")
+        assert openai_api_key is not None or openai_api_key is not ""
 
         openai.api_key = openai_api_key
         # response = openai.ChatCompletion.create(
@@ -64,7 +65,7 @@ with DAG(
         """
         post = ti.xcom_pull(task_ids="call_gpt")
         assert post is not None or post is not ""
-        
+
         date = datetime.datetime.now().isoformat().split("T")[0]
         post = re.sub(DATE_TIME_REGEX, f"date: {date}", post)
 
