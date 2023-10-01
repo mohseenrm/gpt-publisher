@@ -111,6 +111,7 @@ Hello!
 
     pick_topic = pick_topic()
     call_gpt = call_gpt()
+    process_blog_post = process_blog_post()
 
     # run = BashOperator(
     #     task_id="publish_blog_post",
@@ -127,7 +128,7 @@ Hello!
         bash_command='echo "Shutting down!"',
     )
 
-    pick_topic >> call_gpt >> end
+    pick_topic >> call_gpt >> process_blog_post >> end
 
 if __name__ == "__main__":
     dag.test()
