@@ -40,7 +40,7 @@ hero:
   tablet:
   mobile:
   fallback:
-tags: <RELEVANT_TAGS>
+tags: <RELEVANT_TAGS_COMMA_SEPARATED>
 excerpt: "<BLOG_POST_EXCERPT>"
 timeToRead: <TIME_TO_READ>
 authors:
@@ -49,3 +49,7 @@ authors:
 
 <BLOG_POST_CONTENT>
     """
+
+
+DATE_TIME_REGEX = r"date:(.*)"
+TAGS_REGEX = r"(?<=tags:)(.*)"
