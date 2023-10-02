@@ -36,12 +36,18 @@ with DAG(
     render_template_as_native_obj=True,
 ) as dag:
 
-    def get_clone_link():
+    def get_clone_link() -> str:
         token = Variable.get("GITHUB_TOKEN")
         username = Variable.get("GITHUB_USER")
         repo = Variable.get("GITHUB_REPOSITORY")
         clone_link = f"https://{username}:{token}@github.com/{repo}"
-        print(f"SECRET: {token}")
+        return clone_link
+
+    def get_website_repo_link() -> str:
+        token = Variable.get("GITHUB_TOKEN")
+        username = Variable.get("GITHUB_USER")
+        repo = Variable.get("GITHUB_WEBSITE_REPOSITORY")
+        clone_link = f"https://{username}:{token}@github.com/{repo}"
         return clone_link
 
     @task(task_id="pick_topic")
@@ -171,6 +177,7 @@ with DAG(
         }
 
     clone_url = get_clone_link()
+    website_repo_url = get_website_repo_link()
     pick_topic = pick_topic()
     call_gpt = call_gpt()
     process_blog_post = process_blog_post()
@@ -181,7 +188,10 @@ with DAG(
         task_id="publish_blog_post",
         bash_command="/opt/airflow/dags/scripts/publish.sh ",
         env={
+            "GITHUB_WEBSITE_REPOSITORY": Variable.get("GITHUB_WEBSITE_REPOSITORY"),
+            "GITHUB_REPOSITORY": Variable.get("GITHUB_REPOSITORY"),
             "CLONE_URL": clone_url,
+            "CLONE_WEBSITE_REPO_URL": website_repo_url,
             "BLOG_FILENAME": "{{ ti.xcom_pull(task_ids='process_images')['file_name'] }}",
             "BLOG_CONTENT": "{{ ti.xcom_pull(task_ids='process_images')['post'] }}",
             "PREVIEW_URL": "{{ ti.xcom_pull(task_ids='process_images')['preview'] }}",
