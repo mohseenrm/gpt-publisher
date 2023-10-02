@@ -24,10 +24,24 @@ rm "$BLOG_FILENAME.tmp"
 ls -lart
 cat "$BLOG_FILENAME"
 
+echo "Downloading images..."
+IMAGE_DIR=/tmp/gh/website-v7/static/images/hero
+declare -a IMAGE_URLS=("$PREVIEW_URL" "$DESKTOP_URL" "$TABLET_URL" "$MOBILE_URL" "$FALLBACK_URL")
+declare -a IMAGE_LOCATIONS=("$IMAGE_DIR"/"$BLOG_TITLE".preview.jpg "$IMAGE_DIR"/"$BLOG_TITLE".desktop.jpg "$IMAGE_DIR"/"$BLOG_TITLE".tablet.jpg "$IMAGE_DIR"/"$BLOG_TITLE".mobile.jpg "$IMAGE_DIR"/"$BLOG_TITLE".fallback.jpg)
+IMAGE_SIZE=5
+
+for (( i=0; i<IMAGE_SIZE; i++ ));
+do
+  echo "Downloading: ${IMAGE_URLS[$i]}"
+  curl -o "${IMAGE_LOCATIONS[$i]}" "${IMAGE_URLS[$i]}"
+done
+
 echo "Committing changes..."
 
 git config user.email "mohseenmukaddam6@gmail.com"
 git config user.name "mohseenrm"
+
+cd /tmp/gh/website-v7 || exit 127
 
 git add .
 git commit -m "Adding new blog post"

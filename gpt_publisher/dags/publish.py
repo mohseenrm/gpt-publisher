@@ -184,6 +184,12 @@ with DAG(
             "CLONE_URL": clone_url,
             "BLOG_FILENAME": "{{ ti.xcom_pull(task_ids='process_images')['file_name'] }}",
             "BLOG_CONTENT": "{{ ti.xcom_pull(task_ids='process_images')['post'] }}",
+            "PREVIEW_URL": "{{ ti.xcom_pull(task_ids='process_images')['preview'] }}",
+            "DESKTOP_URL": "{{ ti.xcom_pull(task_ids='process_images')['desktop'] }}",
+            "TABLET_URL": "{{ ti.xcom_pull(task_ids='process_images')['tablet'] }}",
+            "MOBILE_URL": "{{ ti.xcom_pull(task_ids='process_images')['mobile'] }}",
+            "FALLBACK_URL": "{{ ti.xcom_pull(task_ids='process_images')['fallback'] }}",
+            "BLOG_TITLE": "{{ ti.xcom_pull(task_ids='process_images')['title'] }}",
         },
     )
 
