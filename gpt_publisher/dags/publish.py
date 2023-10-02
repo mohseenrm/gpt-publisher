@@ -99,6 +99,7 @@ with DAG(
             "tags": tags,
             "date": date,
             "file_name": file_name,
+            "title": title_words,
         }
 
     @task(task_id="fetch_images")
@@ -106,6 +107,42 @@ with DAG(
         context = ti.xcom_pull(task_ids="process_blog_post")
         tags = context["tags"][:2]
         query = ", ".join(tags)
+
+        token = Variable.get("UNSPLASH_TOKEN")
+        assert token is not None or token is not ""
+
+        headers = {
+            "Authorization": f"Client-ID {token}",
+        }
+        url = f"{UNSPLASH_BASE_URL}/search/photos"
+        params = {
+            "query": query,
+        }
+        response = requests.get(url, headers=headers, params=params)
+        # print(f"response: {response}")
+        # print(f"response.json(): {response.json()}")
+        json = response.json()
+        results = json["results"]
+
+        assert results and len(results) > 0
+
+        idx = random.randint(0, len(results) - 1)
+        image_urls = results[idx]["urls"]
+
+        preview = image_urls["small"]
+        desktop = image_urls["full"]
+        tablet = image_urls["regular"]
+        mobile = image_urls["small"]
+        fallback = image_urls["thumb"]
+
+        return {
+            **context,
+            "preview": preview,
+            "desktop": desktop,
+            "tablet": tablet,
+            "mobile": mobile,
+            "fallback": fallback,
+        }
 
     def mock_blog_post():
         date = datetime.datetime.now().isoformat().split("T")[0]
