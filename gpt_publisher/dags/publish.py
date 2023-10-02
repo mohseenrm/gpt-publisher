@@ -33,6 +33,7 @@ with DAG(
     catchup=False,
     dagrun_timeout=datetime.timedelta(minutes=60),
     tags=["gpt-publisher"],
+    render_template_as_native_obj=True,
 ) as dag:
 
     def get_clone_link():
@@ -155,67 +156,51 @@ with DAG(
         post = context["post"]
         title = context["title"]
 
-        post = re.sub(PREVIEW_REGEX, f"preview: /images/hero/{title}.preview.jpg", post)
-        post = re.sub(DESKTOP_REGEX, f"preview: /images/hero/{title}.desktop.jpg", post)
-        post = re.sub(TABLET_REGEX, f"preview: /images/hero/{title}.tablet.jpg", post)
-        post = re.sub(MOBILE_REGEX, f"preview: /images/hero/{title}.mobile.jpg", post)
-        post = re.sub(
-            FALLBACK_REGEX, f"preview: /images/hero/{title}.fallback.jpg", post
-        )
+        post = re.sub(PREVIEW_REGEX, f" /images/hero/{title}.preview.jpg", post)
+        post = re.sub(DESKTOP_REGEX, f" /images/hero/{title}.desktop.jpg", post)
+        post = re.sub(TABLET_REGEX, f" /images/hero/{title}.tablet.jpg", post)
+        post = re.sub(MOBILE_REGEX, f" /images/hero/{title}.mobile.jpg", post)
+        post = re.sub(FALLBACK_REGEX, f" /images/hero/{title}.fallback.jpg", post)
+
+        # Weird hack for jinja2 template rendering, that strips out newlines
+        post = post.replace("\n", "<NEW_LINE_TOKEN>")
+
         return {
             **context,
             "post": post,
         }
 
-    def mock_blog_post():
-        date = datetime.datetime.now().isoformat().split("T")[0]
-        return {
-            "title": f"{date}-hello-world",
-            "body": """
----
-title: "Preparing to be a Dog Parent"
-date: 2021-12-26T12:34:37-08:00
-hero:
-  preview: /images/hero/preparing-to-be-a-dog-parent.jpg
-  desktop: /images/hero/preparing-to-be-a-dog-parent.jpg
-  tablet: /images/hero/preparing-to-be-a-dog-parent-tablet.jpg
-  mobile: /images/hero/preparing-to-be-a-dog-parent-mobile.jpg
-  fallback: /images/hero/preparing-to-be-a-dog-parent.jpg
-excerpt: "Lessons on becoming a paw parent and how to dog proof your home."
-timeToRead: 5
-authors:
-  - Mohseen Mukaddam
----
-
-Hello!
-            """,
-        }
-
     clone_url = get_clone_link()
-    blog_post = mock_blog_post()
-
     pick_topic = pick_topic()
     call_gpt = call_gpt()
     process_blog_post = process_blog_post()
     fetch_images = fetch_images()
     process_images = process_images()
 
-    # run = BashOperator(
-    #     task_id="publish_blog_post",
-    #     bash_command="/opt/airflow/dags/scripts/publish.sh ",
-    #     env={
-    #         "CLONE_URL": clone_url,
-    #         "BLOG_FILENAME": f"{blog_post['title']}.md",
-    #         "BLOG_CONTENT": blog_post["body"],
-    #     },
-    # )
+    run = BashOperator(
+        task_id="publish_blog_post",
+        bash_command="/opt/airflow/dags/scripts/publish.sh ",
+        env={
+            "CLONE_URL": clone_url,
+            "BLOG_FILENAME": "{{ ti.xcom_pull(task_ids='process_images')['file_name'] }}",
+            "BLOG_CONTENT": "{{ ti.xcom_pull(task_ids='process_images')['post'] }}",
+        },
+    )
 
     end = BashOperator(
         task_id="end",
         bash_command='echo "Shutting down!"',
     )
 
-    pick_topic >> call_gpt >> process_blog_post >> fetch_images >> process_images >> end
+    (
+        pick_topic
+        >> call_gpt
+        >> process_blog_post
+        >> fetch_images
+        >> process_images
+        >> run
+        >> end
+    )
 
 if __name__ == "__main__":
     dag.test()

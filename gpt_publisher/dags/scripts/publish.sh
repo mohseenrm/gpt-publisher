@@ -1,6 +1,9 @@
 #!/bin/bash
 
-echo "Cloning repo..."
+echo "Cloning website-v7 repo..."
+
+# Weird hack for jinja2 template rendering, that strips out newlines
+PARSED_BLOG_CONTENT="${BLOG_CONTENT//<NEW_LINE_TOKEN>/\\n}"
 
 mkdir -p /tmp/gh
 cd /tmp/gh || exit 127
@@ -13,7 +16,11 @@ cd content/post || exit 127
 echo "Writing to file..."
 
 touch "$BLOG_FILENAME"
-echo "$BLOG_CONTENT" > "$BLOG_FILENAME"
+echo "$PARSED_BLOG_CONTENT" > "$BLOG_FILENAME"
+
+# Replace \n with actual newlines
+awk '{gsub(/\\n/,"\n")}1' "$BLOG_FILENAME" > "$BLOG_FILENAME.tmp" && mv "$BLOG_FILENAME.tmp" "$BLOG_FILENAME"
+rm "$BLOG_FILENAME.tmp"
 ls -lart
 cat "$BLOG_FILENAME"
 
