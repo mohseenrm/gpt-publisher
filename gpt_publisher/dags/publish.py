@@ -17,10 +17,14 @@ from gpt_publisher.constants import (
     TAGS_REGEX,
     TITLE_REGEX,
     WORD_REGEX,
+    PREVIEW_REGEX,
+    DESKTOP_REGEX,
+    TABLET_REGEX,
+    MOBILE_REGEX,
+    FALLBACK_REGEX,
     UNSPLASH_BASE_URL,
     gpt_prompt,
 )
-
 
 with DAG(
     dag_id="publish_blog_post",
@@ -144,6 +148,25 @@ with DAG(
             "fallback": fallback,
         }
 
+    @task(task_id="process_images")
+    def process_images(ti=None):
+        context = ti.xcom_pull(task_ids="fetch_images")
+
+        post = context["post"]
+        title = context["title"]
+
+        post = re.sub(PREVIEW_REGEX, f"preview: /images/hero/{title}.preview.jpg", post)
+        post = re.sub(DESKTOP_REGEX, f"preview: /images/hero/{title}.desktop.jpg", post)
+        post = re.sub(TABLET_REGEX, f"preview: /images/hero/{title}.tablet.jpg", post)
+        post = re.sub(MOBILE_REGEX, f"preview: /images/hero/{title}.mobile.jpg", post)
+        post = re.sub(
+            FALLBACK_REGEX, f"preview: /images/hero/{title}.fallback.jpg", post
+        )
+        return {
+            **context,
+            "post": post,
+        }
+
     def mock_blog_post():
         date = datetime.datetime.now().isoformat().split("T")[0]
         return {
@@ -175,6 +198,7 @@ Hello!
     call_gpt = call_gpt()
     process_blog_post = process_blog_post()
     fetch_images = fetch_images()
+    process_images = process_images()
 
     # run = BashOperator(
     #     task_id="publish_blog_post",
@@ -191,7 +215,7 @@ Hello!
         bash_command='echo "Shutting down!"',
     )
 
-    pick_topic >> call_gpt >> process_blog_post >> fetch_images >> end
+    pick_topic >> call_gpt >> process_blog_post >> fetch_images >> process_images >> end
 
 if __name__ == "__main__":
     dag.test()

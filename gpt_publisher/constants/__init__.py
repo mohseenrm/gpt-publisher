@@ -56,4 +56,10 @@ TAGS_REGEX = r"(?<=tags:)(.*)"
 TITLE_REGEX = r"(?<=title:)(.*)"
 WORD_REGEX = r"[\w]+"
 
+PREVIEW_REGEX = r"(?<=preview:)(.*)"
+DESKTOP_REGEX = r"(?<=desktop:)(.*)"
+TABLET_REGEX = r"(?<=tablet:)(.*)"
+MOBILE_REGEX = r"(?<=mobile:)(.*)"
+FALLBACK_REGEX = r"(?<=fallback:)(.*)"
+
 UNSPLASH_BASE_URL = "https://api.unsplash.com"
