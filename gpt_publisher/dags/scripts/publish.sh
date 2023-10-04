@@ -61,7 +61,7 @@ git add .
 git commit -m "Adding new blog post"
 git push origin master
 
-echo "Done! $BLOG_FILENAME published to staging."
+echo "Done! $BLOG_FILENAME published to master."
 
 cd /tmp/gh || exit 127
 
