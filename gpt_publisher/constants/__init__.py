@@ -18,7 +18,7 @@ GPT_TOPICS = [
 
 def gpt_prompt(theme: str) -> str:
     return f"""
-You are an influential software developer blogger. Write a 7-15 min long SEO-friendly blog post in markdown format with the given template and these requirements:
+You are an influential software developer blogger. Write a 1600-2000 words long SEO-friendly blog post in markdown format with the given template and these requirements:
 
 1. The theme is "{theme}"
 2. The blog post should cover this theme without directly referencing the chosen theme.
